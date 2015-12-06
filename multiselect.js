@@ -1,212 +1,216 @@
 /**
  * Multiselect
  * https://github.com/adampresley/multiselect
- * version 0.0.2
+ * version 0.0.3
  *
  * Author: Adam Presley
  * License: MIT
  * Copyright 2015 Adam Presley
  */
 (function(window, document) {
-	"use strict";
+    "use strict";
 
-	var
-		selectedClass = "multiselect-li-selected";
+    var selectedClass = "multiselect-li-selected";
 
+    /**
+     * This is the public interface object returned to the calling user
+     * after rendering the control.
+     */
+    var publicInterface = function(elementId, config, data) {
+        /************************************************************************
+         * Public methods
+         ***********************************************************************/
+        this.getData = function() {
+            return data;
+        };
 
-	/**
-	 * This is the public interface object returned to the calling user
-	 * after rendering the control.
-	 */
-	var publicInterface = function(elementId, config, data) {
-		/************************************************************************
-		 * Public methods
-		 ***********************************************************************/
-		this.getData = function() {
-			return data;
-		};
+        this.getSelected = function() {
+            var
+                selected = findSelectedItems(),
+                result = [],
+                index;
 
-		this.getSelected = function() {
-			var
-				selected = findSelectedItems(),
-				result = [],
-				index;
+            for (index = 0; index < selected.length; index++) {
+                result.push({
+                    "value": selected[index].getAttribute("data-value"),
+                    "text": selected[index].textContent,
+                    "index": window.parseInt(selected[index].getAttribute("data-index"), 10)
+                });
+            }
 
-			for (index = 0; index < selected.length; index++) {
-				result.push({
-					"value": selected[index].getAttribute("data-value"),
-					"text": selected[index].textContent,
-					"index": window.parseInt(selected[index].getAttribute("data-index"), 10)
-				});
-			}
+            return result;
+        };
 
-			return result;
-		};
+        this.getSelectedIndexes = function() {
+            var
+                selected = findSelectedItems(),
+                result = [],
+                index;
 
-		this.getSelectedIndexes = function() {
-			var
-				selected = findSelectedItems(),
-				result = [],
-				index;
+            for (index = 0; index < selected.length; index++) {
+                result.push(window.parseInt(selected[index].getAttribute("data-index"), 10));
+            }
 
-			for (index = 0; index < selected.length; index++) {
-				result.push(window.parseInt(selected[index].getAttribute("data-index"), 10));
-			}
+            return result;
+        };
 
-			return result;
-		};
+        this.getSelectedValues = function() {
+            var
+                selected = findSelectedItems(),
+                result = [],
+                index;
 
-		this.getSelectedValues = function() {
-			var
-				selected = findSelectedItems(),
-				result = [],
-				index;
+            for (index = 0; index < selected.length; index++) {
+                result.push(selected[index].getAttribute("data-value"));
+            }
 
-			for (index = 0; index < selected.length; index++) {
-				result.push(selected[index].getAttribute("data-value"));
-			}
-
-			return result;
-		};
-
-		/************************************************************************
-		 * Private methods
-		 ***********************************************************************/
-		var attachClickEventToListItems = function() {
-			Array.prototype.forEach.call(_listItems, function(el) {
-				el.addEventListener("click", function() {
-					this.classList.toggle(selectedClass);
-					if (config.onItemClick) {
-						config.onItemClick(el);
-					}
-				});
-			});
-		};
-
-		var findSelectedItems = function() {
-			return Array.prototype.filter.call(_listItems, function(el) {
-				return el.classList.contains(selectedClass);
-			});
-		};
-
-		/************************************************************************
-		 * Constructor
-		 ***********************************************************************/
-		var
-			_containerEl = document.getElementById(elementId),
-			_listItems = _containerEl.querySelectorAll("li");
-
-		attachClickEventToListItems();
-	};
+            return result;
+        };
 
 
-	/**
-	 * This is the object that is attached to the window scope. This
-	 * object provides the render() method and does the bulk of the
-	 * work. Calling the render() method will return an object
-	 * for the caller to work with.
-	 */
-	var multiselect = function() {
-		var
-			_self = this,
-			_containerEl = undefined,
-			_config = {},
-			_data = [];
+        /************************************************************************
+         * Private methods
+         ***********************************************************************/
+        var attachClickEventToListItems = function() {
+            Array.prototype.forEach.call(_listItems, function(el) {
+                el.addEventListener("click", function() {
+                    this.classList.toggle(selectedClass);
+                    if(this.classList.length==0) {
+                        this.selected=false;
+                    }
+                    if (config.onItemClick) {
+                        config.onItemClick(el);
+                    }
+                });
 
-		/************************************************************************
-		 * Public methods
-		 ***********************************************************************/
-		this.render = function(config) {
-			var
-				newEl = document.createDocumentFragment(),
-				outerDiv = undefined,
-				list = undefined;
+            });
+        };
 
-			setupConfig(config);
-			setupData(_config.data);
+        var findSelectedItems = function() {
+            return Array.prototype.filter.call(_listItems, function(el) {
+                return el.classList.contains(selectedClass);
+            });
+        };
 
-			_containerEl = document.getElementById(_config.elementId);
-			_containerEl.classList.add("multiselect");
+        /************************************************************************
+         * Constructor
+         ***********************************************************************/
+        var
+            _containerEl = document.getElementById(elementId),
+            _listItems = _containerEl.querySelectorAll("option");
 
-			outerDiv = createContainer(newEl);
-			list = createList(outerDiv);
-			createItems(list, _data);
+        attachClickEventToListItems();
+    };
 
-			outerDiv.appendChild(list);
-			newEl.appendChild(outerDiv);
 
-			_containerEl.appendChild(newEl);
-			return new publicInterface(_config.elementId, _config, _data);
-		};
+    /**
+     * This is the object that is attached to the window scope. This
+     * object provides the render() method and does the bulk of the
+     * work. Calling the render() method will return an object
+     * for the caller to work with.
+     */
+    var multiselect = function() {
+        var
+            _self = this,
+            _containerEl = undefined,
+            _config = {},
+            _data = [];
 
-		/************************************************************************
-		 * Private methods
-		 ***********************************************************************/
-		var createContainer = function(el) {
-			var outerDiv = document.createElement("div");
+        /************************************************************************
+         * Public methods
+         ***********************************************************************/
+        this.render = function(config) {
+            var
+                newEl = document.createDocumentFragment(),
+                outerDiv = undefined,
+                list = undefined;
 
-			outerDiv.classList.add("multiselect-outer-div");
-			outerDiv.style.width = _config.width;
-			outerDiv.style.height = _config.height;
-			outerDiv.style.overflow = "auto";
+            setupConfig(config);
+            setupData(_config.data);
 
-			return outerDiv;
-		};
+            _containerEl = document.getElementById(_config.elementId);
+            _containerEl.classList.add("multiselect");
 
-		var createItem = function(index, itemData) {
-			var listItem = document.createElement("li");
+            outerDiv = createContainer(newEl);
+            list = createList(outerDiv);
+            createItems(list, _data);
 
-			listItem.textContent = itemData.text;
-			listItem.setAttribute("data-value", itemData.value);
-			listItem.setAttribute("data-index", index);
+            outerDiv.appendChild(list);
+            newEl.appendChild(outerDiv);
 
-			if (itemData.hasOwnProperty("selected") && itemData.selected === true) {
-				listItem.classList.add(selectedClass);
-			}
+            _containerEl.appendChild(newEl);
+            return new publicInterface(_config.elementId, _config, _data);
+        };
 
-			return listItem;
-		};
+        /************************************************************************
+         * Private methods
+         ***********************************************************************/
+        var createContainer = function(el) {
+            var outerDiv = document.createElement("div");
 
-		var createItems = function(listEl, data) {
-			var
-				index = 0;
+            outerDiv.classList.add("multiselect-outer-div");
+            outerDiv.style.width = _config.width;
+            outerDiv.style.height = _config.height;
+            outerDiv.style.overflow = "auto";
 
-			for (index = 0; index < data.length; index++) {
-				var item = createItem(index, data[index]);
-				listEl.appendChild(item);
-			}
-		};
+            return outerDiv;
+        };
 
-		var createList = function(outerDivEl) {
-			var list = document.createElement("ul");
+        var createItem = function(index, itemData) {
+            var listItem = document.createElement("option");
 
-			list.classList.add("multiselect-list");
-			return list;
-		};
+            listItem.textContent = itemData.text;
+            listItem.setAttribute("data-value", itemData.value);
+            listItem.setAttribute("data-index", index);
 
-		var setupConfig = function(config) {
-			/*
-			 * Validate required arguments
-			 */
-			if (!config.hasOwnProperty("elementId")) throw("Please provide the ID of the element to render to (elementId)");
-			if (!config.hasOwnProperty("data")) throw("Please provide an array of data for the multiselect control");
+            if (itemData.hasOwnProperty("selected") && itemData.selected === true) {
+                listItem.classList.add(selectedClass);
+            }
 
-			_config.elementId = config.elementId;
-			_config.data = config.data;
+            return listItem;
+        };
 
-			_config.width = config.width || "300px";
-			_config.height = config.height || "250px";
-			_config.onItemClick = config.onItemClick || undefined;
-		};
+        var createItems = function(listEl, data) {
+            var index = 0;
 
-		var setupData = function(data) {
-			if (typeof data === "function") {
-				_data = data();
-			} else {
-				_data = data;
-			}
-		};
-	};
+            for (index = 0; index < data.length; index++) {
+                var item = createItem(index, data[index]);
+                listEl.appendChild(item);
+            }
+        };
 
-	window.multiselect = new multiselect();
+        var createList = function(outerDivEl) {
+            var list = document.createElement("select");
+
+            list.classList.add("multiselect-list");
+            list.setAttribute("multiple","multiple");
+            return list;
+        };
+
+        var setupConfig = function(config) {
+            /*
+             * Validate required arguments
+             */
+            if (!config.hasOwnProperty("elementId")) throw("Please provide the ID of the element to render to (elementId)");
+            if (!config.hasOwnProperty("data")) throw("Please provide an array of data for the multiselect control");
+
+            _config.elementId = config.elementId;
+            _config.data = config.data;
+
+            _config.width = config.width || "300px";
+            _config.height = config.height || "250px";
+            _config.onItemClick = config.onItemClick || undefined;
+        };
+
+        var setupData = function(data) {
+            if (typeof data === "function") {
+                _data = data();
+            } else {
+                _data = data;
+            }
+        };
+    };
+
+    window.multiselect = new multiselect();
 }(window, document));
+
