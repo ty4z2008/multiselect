@@ -6,7 +6,7 @@ This JavaScript component is a widget that provides a multi-select box control. 
 This component does not have any dependencies outside of a modern browser. This has been tested on the following browsers:
 
 * Chrome 39.0.2171.99 (64-bit)
-* Internet Explorer 11.0.9600.17416 (64-bit)
+* Internet Explorer 9 (64-bit)
 * Firefox 32.0
 
 ![Screenshot 1](screenshots/screenshot-1.png)
