@@ -1,4 +1,4 @@
-JavaScript Multiselect Widget
+JavaScript Multiselect Widget without other plugin
 =============================
 
 This JavaScript component is a widget that provides a multi-select box control. You provide an array of data, call the **render()** method, and the control is rendered. This widget allows users to select items by simply clicking on the items without having to press the CTRL key.
