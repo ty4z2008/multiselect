@@ -35,7 +35,15 @@ Once it is included place a *DIV* somewhere. Then using a little bit of JavaScri
 			{ "value": 2, "text": "Thai" },
 			{ "value": 3, "text": "American", "selected": true },
 			{ "value": 4, "text": "Mexican" }
-		]
+		],
+		onItemClick:function(e){
+                                if(e.classList.length==0) {
+                                    e.selected=false;
+                                    console.log(e.target)
+                                }else{
+                                    console.log(e.target)
+                                }
+                            }
 	});
 
 	document.getElementById("getSelected").addEventListener("click", function() {
